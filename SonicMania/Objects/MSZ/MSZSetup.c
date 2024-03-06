@@ -120,7 +120,7 @@ void MSZSetup_Create(void *data)
 #endif
     else {
 #if MANIA_PREPLUS
-		RSDK.CopyPalette(0, 204, 4, 204, 4); // Makes the palette fade of MSZ from dawn to day correct for Pre-Plus (it's actually slightly off in that version)
+        RSDK.CopyPalette(0, 204, 4, 204, 4); // Makes the palette fade of MSZ from dawn to day correct for Pre-Plus (it's actually slightly off in that version)
 #endif
         RSDK.CopyPalette(3, 128, 0, 128, 128);
     }

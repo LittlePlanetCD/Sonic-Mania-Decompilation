@@ -1714,7 +1714,7 @@ typedef struct {
     // Origins Extras
     void (*NotifyCallback)(int32 callbackID, int32 param1, int32 param2, int32 param3);
     void (*SetGameFinished)(void);
-	void (*StopAllSfx)(void);
+    void (*StopAllSfx)(void);
 #endif
 } RSDKFunctionTable;
 
