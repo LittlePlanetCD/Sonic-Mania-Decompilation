@@ -431,7 +431,7 @@ struct EntityPlayer {
     int32 abilitySpeed;
     int32 jumpStrength;
     int32 jumpCap;
-    int32 flailing;
+    uint32 flailing;
     int32 sensorX[5];
     int32 sensorY;
     Vector2 moveLayerPosition;
