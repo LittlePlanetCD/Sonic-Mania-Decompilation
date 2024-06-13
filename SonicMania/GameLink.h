@@ -1812,8 +1812,8 @@ typedef struct {
     MOD_REGISTER_OBJECT(object, #object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_NOCLASS(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)      \
-    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorDraw,     \
-                       editorLoad, serialize, NULL, NULL)
+    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,     \
+                       editorDraw, serialize, NULL, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,           \
                                       serialize)                                                                                                     \
@@ -1837,16 +1837,16 @@ typedef struct {
 
 #define MOD_REGISTER_OBJ_OVERLOAD_NOCLASS_STATIC(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,          \
                                                  serialize, staticLoad)                                                                              \
-    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorDraw,     \
-                       editorLoad, serialize, staticLoad, NULL)
+    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,     \
+                       editorDraw, serialize, staticLoad, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV_STATIC(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,    \
                                              serialize, staticLoad)                                                                                  \
     Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object), \
                        update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, NULL)
 
-#define MOD_REGISTER_OBJ_OVERLOAD_MSV_NOCLASS_STATIC(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorDraw,        \
-                                                     editorLoad, serialize, staticLoad)                                                              \
+#define MOD_REGISTER_OBJ_OVERLOAD_MSV_NOCLASS_STATIC(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,        \
+                                                     editorDraw, serialize, staticLoad)                                                              \
     Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,  \
                        draw, create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, NULL)
 
@@ -1860,8 +1860,8 @@ typedef struct {
     MOD_REGISTER_OBJECT(object, #object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_NOCLASS(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)      \
-    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorDraw,     \
-                       editorLoad, serialize, NULL)
+    Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,     \
+                       editorDraw, serialize, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,           \
                                       serialize)                                                                                                     \
