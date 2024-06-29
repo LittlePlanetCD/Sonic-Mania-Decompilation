@@ -64,7 +64,7 @@
 #define RETRO_REVISION (1)
 
 #else
-	
+
 #undef GAME_VERSION
 #define GAME_VERSION VER_103
 #undef RETRO_REVISION
