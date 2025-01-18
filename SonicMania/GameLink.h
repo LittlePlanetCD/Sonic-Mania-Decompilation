@@ -27,9 +27,11 @@ typedef signed short int16;
 typedef unsigned short uint16;
 typedef signed int int32;
 typedef unsigned int uint32;
+typedef signed long long int64;
+typedef unsigned long long uint64;
 
 typedef uint32 bool32;
-#define true 1
+#define true  1
 #define false 0
 
 typedef uint32 color;
@@ -62,6 +64,11 @@ typedef uint32 color;
 #define PLAYER_COUNT (4)
 #define CAMERA_COUNT (4)
 
+#define PALETTE_BANK_COUNT (0x8)
+#define PALETTE_BANK_SIZE  (0x100)
+
+#define OBJECT_COUNT (0x400)
+
 // 0x800 scene objects, 0x40 reserved ones, and 0x100 spare slots for creation
 #define RESERVE_ENTITY_COUNT (0x40)
 #define TEMPENTITY_COUNT     (0x100)
@@ -70,7 +77,7 @@ typedef uint32 color;
 #define TEMPENTITY_START     (ENTITY_COUNT - TEMPENTITY_COUNT)
 
 #define TYPE_COUNT      (0x100)
-#define TYPEGROUP_COUNT (0x104)
+#define TYPEGROUP_COUNT (TYPE_COUNT + 4)
 
 #define CHANNEL_COUNT (0x10)
 
@@ -499,7 +506,7 @@ typedef struct {
 } SpriteFrame;
 
 typedef struct {
-    void *frames;
+    SpriteFrame *frames;
     int32 frameID;
     int16 animationID;
     int16 prevAnimationID;
@@ -527,7 +534,7 @@ typedef struct {
 
 typedef struct {
     uint8 type;
-    uint8 drawGroup[4];
+    uint8 drawGroup[CAMERA_COUNT];
     uint8 widthShift;
     uint8 heightShift;
     uint16 width;
@@ -650,11 +657,14 @@ typedef enum { FX_NONE = 0, FX_FLIP = 1, FX_ROTATE = 2, FX_SCALE = 4 } DrawFX;
 typedef enum { FLIP_NONE, FLIP_X, FLIP_Y, FLIP_XY } FlipFlags;
 
 typedef enum {
-    TYPE_BLANK,
+    TYPE_DEFAULTOBJECT = 0,
 #if RETRO_REV02
     TYPE_DEVOUTPUT,
 #endif
-} DefaultObjTypes;
+
+    TYPE_DEFAULT_COUNT, // max
+    TYPE_BLANK = TYPE_DEFAULTOBJECT,
+} DefaultObjects;
 
 typedef enum {
     INPUT_UNASSIGNED = -2,
@@ -710,6 +720,9 @@ typedef enum {
     PRINT_POPUP,
     PRINT_ERROR,
     PRINT_FATAL,
+#if RETRO_REV0U
+    PRINT_SCRIPTERR,
+#endif
 } PrintModes;
 #else
 typedef enum {
@@ -731,9 +744,9 @@ typedef enum {
     VAR_BOOL,
     VAR_STRING,
     VAR_VECTOR2,
-    VAR_FLOAT,
+    VAR_FLOAT, // Not actually used in Sonic Mania so it's just an assumption, but this is the only thing that'd fit the 32 bit limit and make sense
     VAR_COLOR,
-} VarTypes;
+} VariableTypes;
 
 #if RETRO_REV02
 typedef enum {
@@ -770,14 +783,14 @@ typedef enum {
 #endif
 
 typedef enum {
-    ACTIVE_NEVER,
-    ACTIVE_ALWAYS,
-    ACTIVE_NORMAL,
-    ACTIVE_PAUSED,
-    ACTIVE_BOUNDS,
-    ACTIVE_XBOUNDS,
-    ACTIVE_YBOUNDS,
-    ACTIVE_RBOUNDS,
+    ACTIVE_NEVER,   // never update
+    ACTIVE_ALWAYS,  // always update (even if paused/frozen)
+    ACTIVE_NORMAL,  // always update (unless paused/frozen)
+    ACTIVE_PAUSED,  // update only when paused/frozen
+    ACTIVE_BOUNDS,  // update if in x & y bounds
+    ACTIVE_XBOUNDS, // update only if in x bounds (y bounds dont matter)
+    ACTIVE_YBOUNDS, // update only if in y bounds (x bounds dont matter)
+    ACTIVE_RBOUNDS, // update based on radius boundaries (updateRange.x == radius)
 
     // Not really even a real active value, but some objects set their active states to this so here it is I suppose
     ACTIVE_DISABLED = 0xFF,
@@ -919,6 +932,10 @@ typedef enum {
     ENGINESTATE_ERRORMSG_FATAL,
 #endif
     ENGINESTATE_NONE,
+#if RETRO_REV0U
+    // Prolly origins-only, called by the ending so I assume this handles playing ending movies and returning to menu
+    ENGINESTATE_GAME_FINISHED,
+#endif
 } EngineStates;
 
 // see: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
@@ -1333,7 +1350,7 @@ typedef struct {
     bool32 (*CanShowAltExtensionOverlay)(int32 overlay);
     bool32 (*ShowAltExtensionOverlay)(int32 overlay);
     int32 (*GetConnectingStringID)(void);
-    void (*ShowLimitedVideoOptions)(int32 id);
+    bool32 (*ShowLimitedVideoOptions)(int32 id);
 #endif
 
     // Achievements
@@ -1562,8 +1579,8 @@ typedef struct {
     void (*DrawBlendedFace)(Vector2 *vertices, color *vertColors, int32 vertCount, int32 alpha, int32 inkEffect);
     void (*DrawSprite)(Animator *animator, Vector2 *position, bool32 screenRelative);
     void (*DrawDeformedSprite)(uint16 sheetID, int32 inkEffect, bool32 screenRelative);
-    void (*DrawText)(Animator *animator, Vector2 *position, String *string, int32 endFrame, int32 textLength, int32 align, int32 spacing, void *unused,
-                     Vector2 *charOffsets, bool32 screenRelative);
+    void (*DrawText)(Animator *animator, Vector2 *position, String *string, int32 endFrame, int32 textLength, int32 align, int32 spacing,
+                     void *unused, Vector2 *charOffsets, bool32 screenRelative);
     void (*DrawTile)(uint16 *tiles, int32 countX, int32 countY, Vector2 *position, Vector2 *offset, bool32 screenRelative);
     void (*CopyTile)(uint16 dest, uint16 src, uint16 count);
     void (*DrawAniTiles)(uint16 sheetID, uint16 tileIndex, uint16 srcX, uint16 srcY, uint16 width, uint16 height);
@@ -1621,7 +1638,7 @@ typedef struct {
                              int32 tolerance);
     void (*ProcessObjectMovement)(void *entity, Hitbox *outer, Hitbox *inner);
 #if RETRO_REV0U
-    void (*SetupCollisionConfig)(int32 minDistance, uint8 lowTolerance, uint8 highTolerance, uint8 floorAngleTolerance, uint8 wallAngleTolerance,
+    void (*SetupCollisionConfig)(int8 minDistance, uint8 lowTolerance, uint8 highTolerance, uint8 floorAngleTolerance, uint8 wallAngleTolerance,
                                  uint8 roofAngleTolerance);
     void (*SetPathGripSensors)(CollisionSensor *sensors); // expects 5 sensors
     void (*FindFloorPosition)(CollisionSensor *sensor);
@@ -1748,6 +1765,8 @@ typedef struct {
         RSDK.SetEditableVar(type, buffer, (uint8)object->classID, offsetof(Entity##object, var) + sizeof(arrType) * i);                              \
     }
 
+#define RSDK_INIT_STATIC_VARS(object) memset(sVars, 0, sizeof(Object##object))
+
 // Some extra precaution to prevent crashes in editor
 #define RSDK_ACTIVE_VAR(object, var)                                                                                                                 \
     if (object) {                                                                                                                                    \
@@ -1763,17 +1782,17 @@ typedef struct {
 
 #if RETRO_REV0U
 #define RSDK_REGISTER_OBJECT(object)                                                                                                                 \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, object##_EditorLoad, object##_EditorDraw,         \
                         object##_Serialize, NULL)
 
 #define RSDK_REGISTER_OBJECT_STATICLOAD(object)                                                                                                      \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, object##_EditorLoad, object##_EditorDraw,         \
                         object##_Serialize, object##_StaticLoad)
 #else
 #define RSDK_REGISTER_OBJECT(object)                                                                                                                 \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, object##_EditorLoad, object##_EditorDraw,         \
                         object##_Serialize)
 #endif
@@ -1782,16 +1801,16 @@ typedef struct {
 
 #if RETRO_REV0U
 #define RSDK_REGISTER_OBJECT(object)                                                                                                                 \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, NULL, NULL, object##_Serialize, NULL)
 
 #define RSDK_REGISTER_OBJECT_STATICLOAD(object)                                                                                                      \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, NULL, NULL, object##_Serialize,                   \
                         object##_StaticLoad)
 #else
 #define RSDK_REGISTER_OBJECT(object)                                                                                                                 \
-    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,           \
+    RSDK.RegisterObject((void **)&object, #object, sizeof(Entity##object), sizeof(Object##object), object##_Update, object##_LateUpdate,             \
                         object##_StaticUpdate, object##_Draw, object##_Create, object##_StageLoad, NULL, NULL, object##_Serialize)
 #endif
 
@@ -1805,11 +1824,11 @@ typedef struct {
 
 // Excludes StaticLoad (Parity With REV01 & REV02)
 #define MOD_REGISTER_OBJECT(object, inherit, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)           \
-    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw, \
+    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw,   \
                        create, stageLoad, editorLoad, editorDraw, serialize, NULL, inherit)
 
 #define MOD_REGISTER_OBJ_OVERLOAD(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)              \
-    MOD_REGISTER_OBJECT(object, #object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL)
+    MOD_REGISTER_OBJECT(object, #object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_NOCLASS(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)      \
     Mod.RegisterObject(NULL, NULL, #object, sizeof(Entity##object), 0, 0, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,     \
@@ -1817,18 +1836,18 @@ typedef struct {
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,           \
                                       serialize)                                                                                                     \
-    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object), \
+    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object),     \
                        update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV_NOCLASS(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,   \
                                               serialize)                                                                                             \
-    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,  \
+    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,    \
                        draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL, NULL)
 
 // Includes StaticLoad
 #define MOD_REGISTER_OBJECT_STATIC(object, inherit, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize,    \
                                    staticLoad)                                                                                                       \
-    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw, \
+    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw,   \
                        create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, inherit)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_STATIC(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize,       \
@@ -1842,18 +1861,18 @@ typedef struct {
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV_STATIC(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,    \
                                              serialize, staticLoad)                                                                                  \
-    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object), \
+    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object),     \
                        update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV_NOCLASS_STATIC(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad,        \
                                                      editorDraw, serialize, staticLoad)                                                              \
-    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,  \
+    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,    \
                        draw, create, stageLoad, editorLoad, editorDraw, serialize, staticLoad, NULL)
 
 #else
 
 #define MOD_REGISTER_OBJECT(object, inherit, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)           \
-    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw, \
+    Mod.RegisterObject((void **)&object, NULL, #object, sizeof(Entity##object), sizeof(Object##object), 0, update, lateUpdate, staticUpdate, draw,   \
                        create, stageLoad, editorLoad, editorDraw, serialize, inherit)
 
 #define MOD_REGISTER_OBJ_OVERLOAD(object, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize)              \
@@ -1865,15 +1884,14 @@ typedef struct {
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,           \
                                       serialize)                                                                                                     \
-    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object), \
+    Mod.RegisterObject((void **)&object, (void **)&modSVars, #object, sizeof(Entity##object), sizeof(Object##object), sizeof(ModObject##object),     \
                        update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL)
 
 #define MOD_REGISTER_OBJ_OVERLOAD_MSV_NOCLASS(object, modSVars, update, lateUpdate, staticUpdate, draw, create, stageLoad, editorLoad, editorDraw,   \
                                               serialize)                                                                                             \
-    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,  \
+    Mod.RegisterObject(NULL, (void **)&modSVars, #object, sizeof(Entity##object), 0, sizeof(ModObject##object), update, lateUpdate, staticUpdate,    \
                        draw, create, stageLoad, editorLoad, editorDraw, serialize, NULL)
 #endif
-
 
 #define MOD_REGISTER_OBJECT_HOOK(object) Mod.RegisterObjectHook((void **)&object, #object)
 
@@ -1909,11 +1927,11 @@ typedef struct {
     Entity##type *entityOut = NULL;                                                                                                                  \
     while (RSDK.GetAllEntities(type->classID, (void **)&entityOut))
 
-#define foreach_active_type(type, entityOut)                                                                                                           \
+#define foreach_active_type(type, entityOut)                                                                                                         \
     Entity *entityOut = NULL;                                                                                                                        \
     while (RSDK.GetActiveEntities(type, (void **)&entityOut))
 
-#define foreach_all_type(type, entityOut)                                                                                                          \
+#define foreach_all_type(type, entityOut)                                                                                                            \
     Entity *entityOut = NULL;                                                                                                                        \
     while (RSDK.GetAllEntities(type, (void **)&entityOut))
 
@@ -1951,8 +1969,8 @@ typedef struct {
     RSDK.BreakForeachLoop();                                                                                                                         \
     return
 
-#define destroyEntity(entity)   RSDK.ResetEntity(entity, TYPE_BLANK, NULL)
-#define destroyEntitySlot(slot) RSDK.ResetEntitySlot(slot, TYPE_BLANK, NULL)
+#define destroyEntity(entity)   RSDK.ResetEntity(entity, TYPE_DEFAULTOBJECT, NULL)
+#define destroyEntitySlot(slot) RSDK.ResetEntitySlot(slot, TYPE_DEFAULTOBJECT, NULL)
 
 #if GAME_INCLUDE_EDITOR
 #define showGizmos() (SceneInfo->listPos == SceneInfo->entitySlot || SceneInfo->effectGizmo)
@@ -1974,18 +1992,18 @@ extern const char *modID;
 
 extern RSDKSceneInfo *SceneInfo;
 extern RSDKGameInfo *GameInfo;
-#if MANIA_USE_PLUS
+#if RETRO_REV02
 extern RSDKSKUInfo *SKU;
 #endif
 extern RSDKControllerState *ControllerInfo;
 extern RSDKAnalogState *AnalogStickInfoL;
-#if MANIA_USE_PLUS
+#if RETRO_REV02
 extern RSDKAnalogState *AnalogStickInfoR;
 extern RSDKTriggerState *TriggerInfoL;
 extern RSDKTriggerState *TriggerInfoR;
 #endif
 extern RSDKTouchInfo *TouchInfo;
-#if MANIA_USE_PLUS
+#if RETRO_REV02
 extern RSDKUnknownInfo *UnknownInfo;
 #endif
 extern RSDKScreenInfo *ScreenInfo;
