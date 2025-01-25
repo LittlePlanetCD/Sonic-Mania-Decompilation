@@ -1578,7 +1578,7 @@ typedef struct {
     void (*DrawFace)(Vector2 *vertices, int32 vertCount, int32 r, int32 g, int32 b, int32 alpha, int32 inkEffect);
     void (*DrawBlendedFace)(Vector2 *vertices, color *vertColors, int32 vertCount, int32 alpha, int32 inkEffect);
     void (*DrawSprite)(Animator *animator, Vector2 *position, bool32 screenRelative);
-    void (*DrawDeformedSprite)(uint16 sheetID, int32 inkEffect, bool32 screenRelative);
+    void (*DrawDeformedSprite)(uint16 sheetID, int32 inkEffect, int32 alpha);
     void (*DrawText)(Animator *animator, Vector2 *position, String *string, int32 endFrame, int32 textLength, int32 align, int32 spacing,
                      void *unused, Vector2 *charOffsets, bool32 screenRelative);
     void (*DrawTile)(uint16 *tiles, int32 countX, int32 countY, Vector2 *position, Vector2 *offset, bool32 screenRelative);
