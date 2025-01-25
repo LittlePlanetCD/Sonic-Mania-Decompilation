@@ -1519,10 +1519,10 @@ typedef struct {
     void (*MatrixMultiply)(Matrix *dest, Matrix *matrixA, Matrix *matrixB);
     void (*MatrixTranslateXYZ)(Matrix *matrix, int32 x, int32 y, int32 z, bool32 setIdentity);
     void (*MatrixScaleXYZ)(Matrix *matrix, int32 x, int32 y, int32 z);
-    void (*MatrixRotateX)(Matrix *matrix, int16 angle);
-    void (*MatrixRotateY)(Matrix *matrix, int16 angle);
-    void (*MatrixRotateZ)(Matrix *matrix, int16 angle);
-    void (*MatrixRotateXYZ)(Matrix *matrix, int16 x, int16 y, int16 z);
+    void (*MatrixRotateX)(Matrix *matrix, int32 angle);
+    void (*MatrixRotateY)(Matrix *matrix, int32 angle);
+    void (*MatrixRotateZ)(Matrix *matrix, int32 angle);
+    void (*MatrixRotateXYZ)(Matrix *matrix, int32 x, int32 y, int32 z);
     void (*MatrixInverse)(Matrix *dest, Matrix *matrix);
     void (*MatrixCopy)(Matrix *matDest, Matrix *matSrc);
 
