@@ -2,6 +2,7 @@
 #define OBJ_TUBESPRING_H
 
 #include "Game.h"
+#include "Global/Spring.h"
 
 // Object Class
 struct ObjectTubeSpring {

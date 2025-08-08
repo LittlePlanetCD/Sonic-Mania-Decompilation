@@ -1325,6 +1325,9 @@ typedef struct {
     void (*CopyCollisionMask)(uint16 dst, uint16 src, uint8 cPlane, uint8 cMode);
     void (*GetCollisionInfo)(CollisionMask **masks, TileInfo **tileInfo);
 #endif
+#if RETRO_MOD_LOADER_VER >= 3
+    void *(*HookPublicFunction)(const char *functionName, void *functionPtr);
+#endif
 } ModFunctionTable;
 #endif
 
