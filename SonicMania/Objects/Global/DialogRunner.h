@@ -54,7 +54,7 @@ void DialogRunner_Serialize(void);
 // Extra Entity Functions
 void DialogRunner_HandleCallback(void);
 void DialogRunner_NotifyAutoSave_CB(void);
-void DialogRunner_NotifyAutoSave(void);
+void DialogRunner_State_AutosaveRunner(void);
 void DialogRunner_SetNoSaveDisabled(void);
 void DialogRunner_SetNoSaveEnabled(void);
 void DialogRunner_PromptSavePreference_CB(void);

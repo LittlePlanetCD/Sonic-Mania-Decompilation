@@ -88,7 +88,7 @@ void DialogRunner_NotifyAutoSave_CB(void)
     UIWaitSpinner_FinishWait();
 }
 
-void DialogRunner_NotifyAutoSave(void)
+void DialogRunner_State_AutosaveRunner(void)
 {
     RSDK_THIS(DialogRunner);
 
@@ -273,7 +273,7 @@ bool32 DialogRunner_NotifyAutosave(void)
         DialogRunner->isAutoSaving = true;
         globals->notifiedAutosave  = false;
         LogHelpers_Print("DUMMY NotifyAutosave()");
-        EntityDialogRunner *dialogRunner = CREATE_ENTITY(DialogRunner, DialogRunner_NotifyAutoSave, 0, 0);
+        EntityDialogRunner *dialogRunner = CREATE_ENTITY(DialogRunner, DialogRunner_State_AutosaveRunner, 0, 0);
         dialogRunner->active             = ACTIVE_ALWAYS;
         DialogRunner->activeCallback     = dialogRunner;
     }

@@ -1745,7 +1745,7 @@ void InitPublicFunctions()
 #if MANIA_USE_PLUS
     ADD_PUBLIC_FUNC(DialogRunner_HandleCallback);
     ADD_PUBLIC_FUNC(DialogRunner_NotifyAutoSave_CB);
-    ADD_PUBLIC_FUNC(DialogRunner_NotifyAutoSave);
+    ADD_PUBLIC_FUNC(DialogRunner_State_AutosaveRunner);
     ADD_PUBLIC_FUNC(DialogRunner_SetNoSaveDisabled);
     ADD_PUBLIC_FUNC(DialogRunner_SetNoSaveEnabled);
     ADD_PUBLIC_FUNC(DialogRunner_PromptSavePreference_CB);
