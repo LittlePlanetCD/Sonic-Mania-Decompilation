@@ -27,8 +27,6 @@ typedef signed short int16;
 typedef unsigned short uint16;
 typedef signed int int32;
 typedef unsigned int uint32;
-typedef signed long long int64;
-typedef unsigned long long uint64;
 
 typedef uint32 bool32;
 #define true  1
@@ -1326,7 +1324,7 @@ typedef struct {
     void (*GetCollisionInfo)(CollisionMask **masks, TileInfo **tileInfo);
 #endif
 #if RETRO_MOD_LOADER_VER >= 3
-    void *(*HookPublicFunction)(const char *functionName, void *functionPtr);
+    void (*HookPublicFunction)(const char *functionName, void *functionPtr, void **originalPtr);
 #endif
 } ModFunctionTable;
 #endif
