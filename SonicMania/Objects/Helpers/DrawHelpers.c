@@ -113,10 +113,10 @@ void DrawHelpers_DrawRectOutline(int32 x, int32 y, int32 sizeX, int32 sizeY, uin
 
     drawPos.x = x - (sizeX >> 1);
     drawPos.y = y - (sizeY >> 1);
-    RSDK.DrawLine(drawPos.x - TO_FIXED(1), drawPos.y - TO_FIXED(1), drawPos.x + sizeX, drawPos.y - TO_FIXED(1), color, 0x00, INK_NONE, false);
-    RSDK.DrawLine(drawPos.x - TO_FIXED(1), drawPos.y + sizeY, drawPos.x + sizeX, drawPos.y + sizeY, color, 0x00, INK_NONE, false);
-    RSDK.DrawLine(drawPos.x - TO_FIXED(1), drawPos.y - TO_FIXED(1), drawPos.x - TO_FIXED(1), drawPos.y + sizeY, color, 0x00, INK_NONE, false);
-    RSDK.DrawLine(drawPos.x + sizeX, drawPos.y - TO_FIXED(1), drawPos.x + sizeX, drawPos.y + sizeY, color, 0x00, INK_NONE, false);
+    RSDK.DrawLine(drawPos.x, drawPos.y, drawPos.x + sizeX, drawPos.y, color, 0x00, INK_NONE, false);
+    RSDK.DrawLine(drawPos.x, drawPos.y + sizeY, drawPos.x + sizeX, drawPos.y + sizeY, color, 0x00, INK_NONE, false);
+    RSDK.DrawLine(drawPos.x, drawPos.y, drawPos.x, drawPos.y + sizeY, color, 0x00, INK_NONE, false);
+    RSDK.DrawLine(drawPos.x + sizeX, drawPos.y, drawPos.x + sizeX, drawPos.y + sizeY, color, 0x00, INK_NONE, false);
 }
 
 void DrawHelpers_DrawArenaBounds(int32 left, int32 top, int32 right, int32 bottom, uint8 sideMasks, uint32 color)

@@ -1379,7 +1379,7 @@ typedef struct {
     void (*DrawDevString)(const char *string, int32 x, int32 y, int32 align, uint32 color);
 
     // Audio
-    void (*GetChannelAttributes)(uint8 channel, float *volume, float *panning, float *speed);
+    void (*GetChannelAttributes)(int32 channel, float *volume, float *panning, float *speed);
 
     // Dev Menu Characters
     void (*AddDevMenuCharacter)(const char *playerName, int32 id);
@@ -1726,14 +1726,14 @@ typedef struct {
     uint16 (*GetSfx)(const char *path);
     int32 (*PlaySfx)(uint16 sfx, int32 loopPoint, int32 priority);
     void (*StopSfx)(uint16 sfx);
-    int32 (*PlayStream)(const char *filename, uint32 channel, uint32 startPos, uint32 loopPoint, bool32 loadASync);
-    void (*SetChannelAttributes)(uint32 channel, float volume, float pan, float speed);
-    void (*StopChannel)(uint32 channel);
-    void (*PauseChannel)(uint32 channel);
-    void (*ResumeChannel)(uint32 channel);
+    int32 (*PlayStream)(const char *filename, int32 channel, uint32 startPos, uint32 loopPoint, bool32 loadASync);
+    void (*SetChannelAttributes)(int32 channel, float volume, float pan, float speed);
+    void (*StopChannel)(int32 channel);
+    void (*PauseChannel)(int32 channel);
+    void (*ResumeChannel)(int32 channel);
     bool32 (*IsSfxPlaying)(uint16 sfx);
-    bool32 (*ChannelActive)(uint32 channel);
-    uint32 (*GetChannelPos)(uint32 channel);
+    bool32 (*ChannelActive)(int32 channel);
+    uint32 (*GetChannelPos)(int32 channel);
 
     // Videos & "HD Images"
     bool32 (*LoadVideo)(const char *filename, double startDelay, bool32 (*skipCallback)(void));
