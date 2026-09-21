@@ -130,7 +130,7 @@ void ChemicalPool_Create(void *data)
         self->hitbox.left   = -(self->size.x >> 17);
         self->hitbox.top    = (self->type == CHEMICALPOOL_BLUE ? 6 : 0) - (self->size.y >> 17);
         self->hitbox.right  = -self->hitbox.left;
-        self->hitbox.bottom = -self->hitbox.bottom;
+        self->hitbox.bottom = -self->hitbox.top;
 
         ChemicalPool_SetupColors();
 
